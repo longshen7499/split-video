@@ -14,6 +14,8 @@ export class AppService {
   }
 
   splitVideo() {
-    this.videoService.splitVideo();
+    for (let i = 0; i < 1000; i++) {
+      this.videoService.splitVideo();
+    }
   }
 }

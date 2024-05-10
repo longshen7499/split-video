@@ -5,20 +5,25 @@ import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class VideoService {
-  concatVideo() {
+  concatVideo(folderName = '') {
     console.log(
       'video path: ',
       path.join(process.cwd(), '/public/video/Vmake-home-intro.mp4'),
     );
     const fileList = fs
-      .readdirSync(path.join(process.cwd(), '/public/video/split'))
+      .readdirSync(
+        path.join(process.cwd(), `/public/video/split/${folderName}`),
+      )
       .map((file) => `file '${file}'`)
       .join('\n');
 
-    const filePath = path.join(process.cwd(), '/public/video/split/concat.txt');
+    const filePath = path.join(
+      process.cwd(),
+      `/public/video/split/${folderName}concat.txt`,
+    );
     const concatPath = path.join(
       process.cwd(),
-      '/public/video/split/merged.mp4',
+      `/public/video/split/${folderName}merged.mp4`,
     );
 
     // 创建 concat 文件
@@ -59,9 +64,11 @@ export class VideoService {
     const fileStream = fs.createReadStream(
       path.join(process.cwd(), '/public/video/Vmake-home-intro.mp4'),
     );
+    const randomPath = Math.random() * 10;
+    fs.mkdirSync(path.join(process.cwd(), `/public/video/split/${randomPath}`));
     const filePath = path.join(
       process.cwd(),
-      '/public/video/split/prefix_%03d.mp4',
+      `/public/video/split/${randomPath}/prefix_%03d.mp4`,
     );
 
     const ffmpegProcess = spawn('ffmpeg', [
@@ -90,6 +97,7 @@ export class VideoService {
 
     ffmpegProcess.on('close', (code) => {
       console.log(`exit: ${code}`);
+      this.concatVideo(`${randomPath}/`);
     });
   }
 }
