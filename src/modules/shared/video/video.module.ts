@@ -21,11 +21,14 @@ export class VideoService {
       '/public/video/split/merged.mp4',
     );
 
+    const outputStream = fs.createWriteStream(concatPath);
+
     // 创建 concat 文件
     fs.writeFileSync(filePath, fileList);
 
     // 使用 ffmpeg 合并文件
     const ffmpegProcess = spawn('ffmpeg', [
+      '-y',
       '-f',
       'concat',
       '-safe',
@@ -37,6 +40,8 @@ export class VideoService {
       concatPath,
     ]);
 
+    ffmpegProcess.stdout.pipe(outputStream);
+
     ffmpegProcess.stdout.on('data', (data) => {
       console.log(`stdout: ${data}`);
     });
@@ -47,6 +52,7 @@ export class VideoService {
 
     ffmpegProcess.on('close', (code) => {
       fs.unlinkSync(filePath);
+      outputStream.close();
       console.log(`exit: ${code}; deleted;`);
     });
   }
@@ -90,6 +96,7 @@ export class VideoService {
 
     ffmpegProcess.on('close', (code) => {
       console.log(`exit: ${code}`);
+      fileStream.close();
     });
   }
 }
